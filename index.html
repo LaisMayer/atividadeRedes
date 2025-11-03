@@ -1,25 +1,110 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Executar Python no Navegador</title>
 </head>
 <body>
 
-    <h1>Request - Executar Código</h1>
+<h1>Executar Código Python no Navegador</h1>
 
-    <label for="codigo">Código:</label><br>
-    <textarea id="codigo" rows="8" cols="600" placeholder=></textarea><br><br>
+<label for="codigo">Código Python:</label><br>
+<textarea id="codigo" rows="8" cols="80" placeholder="Digite o código Python aqui..."></textarea><br><br>
 
-    <label for="entrada">Input:</label><br>
-    <input id="entrada" size="60" placeholder=><br><br>
+<!-- Teste 1 -->
+<h3>Teste 1</h3>
+<input id="entrada1" size="40" placeholder="Input 1">
+<input id="saida1" size="40" placeholder="Output esperado 1"><br><br>
 
-    <button id="executar">Send</button>
+<!-- Teste 2 -->
+<h3>Teste 2</h3>
+<input id="entrada2" size="40" placeholder="Input 2">
+<input id="saida2" size="40" placeholder="Output esperado 2"><br><br>
 
-    <h3>Resultado:</h3>
-    <pre id="resultado">Aguardando execução</pre>
+<!-- Teste 3 -->
+<h3>Teste 3</h3>
+<input id="entrada3" size="40" placeholder="Input 3">
+<input id="saida3" size="40" placeholder="Output esperado 3"><br><br>
 
-    <script src="script.js"></script>
+<button id="executar">Executar</button>
+
+<h3>Resultado:</h3>
+<pre id="resultado">Aguardando execução...</pre>
+
+<!-- Pyodide -->
+<script src="https://cdn.jsdelivr.net/pyodide/v0.23.3/full/pyodide.js"></script>
+<script>
+async function main() {
+    const pyodide = await loadPyodide();
+
+    function runPython(code, input) {
+        // Define a função input() com o valor fornecido
+        pyodide.globals.set("input_data", input);
+        pyodide.runPython(`
+def input():
+    return input_data
+        `);
+        // Executa o código e captura a saída
+        try {
+            let output = pyodide.runPython(`
+import sys
+from io import StringIO
+sys.stdout = mystdout = StringIO()
+sys.stderr = mystderr = StringIO()
+try:
+    ${code}
+except Exception as e:
+    print(e, file=sys.stderr)
+(mystdout.getvalue(), mystderr.getvalue())
+            `);
+            return output; // [stdout, stderr]
+        } catch(err) {
+            return ["", err];
+        }
+    }
+
+    document.getElementById("executar").addEventListener("click", () => {
+        const codigo = document.getElementById("codigo").value;
+        const entradas = [
+            document.getElementById("entrada1").value,
+            document.getElementById("entrada2").value,
+            document.getElementById("entrada3").value
+        ];
+        const saidas = [
+            document.getElementById("saida1").value,
+            document.getElementById("saida2").value,
+            document.getElementById("saida3").value
+        ];
+
+        let resultado_final = "";
+
+        for (let i = 0; i < 3; i++) {
+            const [stdout, stderr] = runPython(codigo, entradas[i]);
+            const output = stdout.trim();
+            const esperado = saidas[i];
+
+            resultado_final += `🔹 Teste ${i+1}\n`;
+            resultado_final += `Entrada: ${entradas[i]}\n`;
+            resultado_final += `Saída obtida: ${output}\n`;
+            resultado_final += `Saída esperada: ${esperado}\n`;
+
+            if (output === esperado) {
+                resultado_final += "✅ CORRETO\n\n";
+            } else {
+                resultado_final += "❌ INCORRETO\n\n";
+            }
+
+            if (stderr.trim()) {
+                resultado_final += `⚠️ Erros: ${stderr.trim()}\n\n`;
+            }
+        }
+
+        document.getElementById("resultado").textContent = resultado_final;
+    });
+}
+
+main();
+</script>
 </body>
 </html>
