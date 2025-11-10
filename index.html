@@ -4,14 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Executar Código</title>
-<!-- <style>
-  /* Estilos básicos para melhor visualização */
-  body { font-family: sans-serif; padding: 20px; }
-  textarea#codigo { width: 100%; max-width: 800px; box-sizing: border-box; }
-  div h3 { margin-top: 20px; }
-  #resultado { background-color: #eee; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; max-width: 800px; }
-  .test-case { margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
-</style> -->
 </head>
 <body>
 
@@ -20,7 +12,6 @@
 <label for="linguagem">Linguagem:</label>
 <select id="linguagem">
     <option value="71" selected>Python 3 (71)</option>
-    <option value="54">C++ (GCC 9.2.0) (54)</option>
     <option value="63">JavaScript (Node.js 12.14.0) (63)</option>
     </select><br><br>
 
@@ -29,31 +20,31 @@
 
 <div class="test-case">
   <h3>Teste 1</h3>
-  <input id="entrada1" size="40" placeholder="Input 1">
-  <input id="saida1" size="40" placeholder="Output esperado 1">
+ 
+  <textarea name="Input 1" id="entrada1" size="40"></textarea>
+   <textarea name="Output esperado 1" id="saida1" size="40"></textarea>
 </div>
 
 <div class="test-case">
   <h3>Teste 2</h3>
-  <input id="entrada2" size="40" placeholder="Input 2">
-  <input id="saida2" size="40" placeholder="Output esperado 2">
+   <textarea name="Input 2" id="entrada2" size="40"></textarea>
+  <textarea name="Output esperado 2" id="saida2" size="40"></textarea>
 </div>
 
 <div class="test-case">
   <h3>Teste 3</h3>
-  <input id="entrada3" size="40" placeholder="Input 3">
-  <input id="saida3" size="40" placeholder="Output esperado 3">
+  <textarea name="Input 3" id="entrada3" size="40"></textarea>
+  <textarea name="Output esperado 3" id="saida3" size="40"></textarea>
 </div><br>
 
 <button id="executar">Executar</button>
 
 <h3>Resultado:</h3>
-<pre id="resultado">Aguardando execução...</pre>
 
 <script>
 document.getElementById("executar").addEventListener("click", async () => {
     const codigo = document.getElementById("codigo").value;
-    const linguagemId = document.getElementById("linguagem").value; // NOVO: Captura o ID da linguagem
+    const linguagemId = document.getElementById("linguagem").value; 
     
     const entradas = [
         document.getElementById("entrada1").value,
@@ -70,7 +61,6 @@ document.getElementById("executar").addEventListener("click", async () => {
     resultadoEl.textContent = "Executando testes...";
 
     try {
-        // Envia o 'linguagemId' junto com os outros dados
         const res = await fetch("http://127.0.0.1:5000/executar", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
