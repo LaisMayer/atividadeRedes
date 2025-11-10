@@ -4,27 +4,42 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Executar Código</title>
+<!-- <style>
+  /* Estilos básicos para melhor visualização */
+  body { font-family: sans-serif; padding: 20px; }
+  textarea#codigo { width: 100%; max-width: 800px; box-sizing: border-box; }
+  div h3 { margin-top: 20px; }
+  #resultado { background-color: #eee; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; max-width: 800px; }
+  .test-case { margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+</style> -->
 </head>
 <body>
 
-<h1>Executar Código Python</h1>   
+<h1>Executar Código</h1>
 
-<label for="codigo">Código Python:</label><br>
-<textarea id="codigo" rows="8" cols="80" placeholder="Digite o código Python aqui..."></textarea><br><br>
+<label for="linguagem">Linguagem:</label>
+<select id="linguagem">
+    <option value="71" selected>Python 3 (71)</option>
+    <option value="54">C++ (GCC 9.2.0) (54)</option>
+    <option value="63">JavaScript (Node.js 12.14.0) (63)</option>
+    </select><br><br>
 
-<div>
+<label for="codigo">Código Fonte:</label><br>
+<textarea id="codigo" rows="12" cols="80" placeholder="Digite o código aqui..."></textarea><br><br>
+
+<div class="test-case">
   <h3>Teste 1</h3>
   <input id="entrada1" size="40" placeholder="Input 1">
   <input id="saida1" size="40" placeholder="Output esperado 1">
-</div><br>
+</div>
 
-<div>
+<div class="test-case">
   <h3>Teste 2</h3>
   <input id="entrada2" size="40" placeholder="Input 2">
   <input id="saida2" size="40" placeholder="Output esperado 2">
-</div><br>
+</div>
 
-<div>
+<div class="test-case">
   <h3>Teste 3</h3>
   <input id="entrada3" size="40" placeholder="Input 3">
   <input id="saida3" size="40" placeholder="Output esperado 3">
@@ -38,6 +53,8 @@
 <script>
 document.getElementById("executar").addEventListener("click", async () => {
     const codigo = document.getElementById("codigo").value;
+    const linguagemId = document.getElementById("linguagem").value; // NOVO: Captura o ID da linguagem
+    
     const entradas = [
         document.getElementById("entrada1").value,
         document.getElementById("entrada2").value,
@@ -50,18 +67,25 @@ document.getElementById("executar").addEventListener("click", async () => {
     ];
 
     const resultadoEl = document.getElementById("resultado");
+    resultadoEl.textContent = "Executando testes...";
 
     try {
+        // Envia o 'linguagemId' junto com os outros dados
         const res = await fetch("http://127.0.0.1:5000/executar", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ codigo, entradas, saidas })
+            body: JSON.stringify({ codigo, entradas, saidas, linguagemId }) 
         });
+
+        if (!res.ok) {
+            throw new Error(`Erro HTTP: ${res.status}`);
+        }
 
         const data = await res.json();
         resultadoEl.textContent = data.resultado;
     } catch (err) {
-        resultadoEl.textContent = "Erro: " + err;
+        resultadoEl.textContent = "Erro na comunicação com o servidor: " + err.message;
+        console.error("Erro:", err);
     }
 });
 </script>
